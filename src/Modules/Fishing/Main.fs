@@ -17,7 +17,7 @@ type State =
 type ActionReq =
     | ToFish of baitName: string option
     | Inventory
-    | Progress
+    | Progress of targetUser: UserId option
     | Inspect of itemName: string
     | OpenUp of itemName: string option
 
@@ -78,10 +78,14 @@ module Parser =
             skipStringCI CommandNames.openUp .>> spaces
             >>. opt pitemName
 
+        let pprogress: _ Parser =
+            skipStringCI CommandNames.progress .>> spaces
+            >>. opt (puserMention <|> puint64)
+
         choice [
             toFish |>> ToFish
             skipStringCI CommandNames.inventory >>% Inventory
-            skipStringCI CommandNames.progress >>% Progress
+            pprogress |>> Progress
             pinspect |>> Inspect
             popen |>> OpenUp
         ]
@@ -774,7 +778,7 @@ let actionReduce (e: EventArgs.MessageCreateEventArgs) (msg: ActionReq) (state: 
         awaiti <| e.Channel.SendMessageAsync b
         state
 
-    | Progress ->
+    | Progress targetUserOpt ->
         awaiti <| e.Channel.TriggerTypingAsync()
 
         let send msg =
@@ -788,11 +792,26 @@ let actionReduce (e: EventArgs.MessageCreateEventArgs) (msg: ActionReq) (state: 
             awaiti <| e.Channel.SendMessageAsync b
 
         let msg =
-            match Players.GuildData.tryFindById e.Author.Id state.Players with
+            let userId =
+                match targetUserOpt with
+                | Some userId -> userId
+                | None ->
+                    match e.Message.ReferencedMessage with
+                    | null -> e.Author.Id
+                    | msg ->
+                        msg.Author.Id
+
+            let createProgressMessage userId totalCatchesCount itemsCount =
+                sprintf "<@%d> обнаружил %d обитателей морских глубин из %d."
+                    userId
+                    totalCatchesCount
+                    itemsCount
+
+            match Players.GuildData.tryFindById userId state.Players with
             | None ->
-                createProgressMessage 0 state.Items.Cache.Count
+                createProgressMessage userId 0 state.Items.Cache.Count
             | Some p ->
-                createProgressMessage p.Data.Catches.Count state.Items.Cache.Count
+                createProgressMessage userId p.Data.Catches.Count state.Items.Cache.Count
 
         send msg
 
