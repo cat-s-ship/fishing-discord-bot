@@ -4,14 +4,6 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Shared\Types.fs" />
-    <Compile Include="Shared\DiscordMessage.fs" />
-    <Compile Include="Shared\Extensions.fs" />
-    <Compile Include="Shared\MessageTemplate.fs" />
-    <Compile Include="Shared\Ui\Table.fs" />
-    <Compile Include="Shared\Api.fs" />
-    <Compile Include="Shared\Db.fs" />
-    <Compile Include="Shared\BotModule.fs" />
     <Compile Include="Modules\Fishing\EditorTypes.fs" />
     <Compile Include="Modules\Fishing\Model.fs" />
     <Compile Include="Modules\Fishing\Main.fs" />

@@ -1,12 +1,10 @@
 FSharp.Core
 DSharpPlus
-DSharpPlus.VoiceNext
 FParsec
 FSharpMyExt
 SixLabors.ImageSharp
 SixLabors.ImageSharp.Drawing
-Svg
 MongoDB.Driver
-ably.io
 dotenv.net
 Saturn
+DiscordBotExtensions
